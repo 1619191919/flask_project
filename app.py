@@ -13,9 +13,8 @@ interpreter.allocate_tensors()
 
 # Load tokenizer and label encoder
 with open('tokenizer.json', 'r') as f:
-    tokenizer_data = json.load(f)
-    from tensorflow.keras.preprocessing.text import tokenizer_from_json
-    tokenizer = tokenizer_from_json(tokenizer_data)
+    tokenizer_data = f.read()
+tokenizer = tokenizer_from_json(tokenizer_data)
 
 with open('label_encoder.json', 'r') as f:
     label_encoder = json.load(f)
