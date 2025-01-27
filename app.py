@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 import re
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import tokenizer_from_json
 import json
 
 app = Flask(__name__)
