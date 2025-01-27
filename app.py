@@ -20,6 +20,9 @@ tokenizer = tokenizer_from_json(tokenizer_data)
 with open('label_encoder.json', 'r') as f:
     label_encoder = json.load(f)
 
+# Ensure keys are treated as strings for JSON lookup
+label_encoder = {int(k): v for k, v in label_encoder.items()}
+
 # Text preprocessing function
 def preprocess_text(text):
     text = text.lower()
@@ -33,6 +36,9 @@ def predict():
         data = request.get_json()
         user_text = data.get('text', '')
 
+        if not user_text.strip():
+            return jsonify({'error': 'No input text provided'}), 400
+
         # Preprocess the input text
         processed_text = preprocess_text(user_text)
         sequence = tokenizer.texts_to_sequences([processed_text])
@@ -44,9 +50,11 @@ def predict():
         interpreter.invoke()
         output_data = interpreter.get_tensor(interpreter.get_output_details()[0]['index'])
 
-        # Get predicted class
+        # Get predicted class index
         predicted_class_index = np.argmax(output_data)
-        predicted_label = label_encoder[str(predicted_class_index)]
+
+        # Get the corresponding label
+        predicted_label = label_encoder.get(predicted_class_index, "Unknown")
 
         return jsonify({'input_text': user_text, 'predicted_status': predicted_label})
 
@@ -55,4 +63,3 @@ def predict():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
