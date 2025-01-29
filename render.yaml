@@ -7,4 +7,4 @@ services:
     envVars:
       - key: PORT
         value: 10000
-    region: oregon
+    region: singapore

@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import tensorflow as tf
 import numpy as np
 import re
@@ -7,6 +8,7 @@ from tensorflow.keras.preprocessing.text import tokenizer_from_json
 import json
 
 app = Flask(__name__)
+CORS(app)  # add this to allow requests from anywhere
 
 # Load TFLite model
 interpreter = tf.lite.Interpreter(model_path="bilstm_model.tflite")
@@ -50,13 +52,18 @@ def predict():
         interpreter.invoke()
         output_data = interpreter.get_tensor(interpreter.get_output_details()[0]['index'])
 
-        # Get predicted class index
+        # Get predicted class index and confidence score
         predicted_class_index = np.argmax(output_data)
+        confidence_score = float(np.max(output_data))  # Convert to Python float for JSON
 
         # Get the corresponding label
         predicted_label = label_encoder.get(predicted_class_index, "Unknown")
 
-        return jsonify({'input_text': user_text, 'predicted_status': predicted_label})
+        return jsonify({      
+            'input_text': user_text,
+            'predicted_status': predicted_label,
+            'confidence_score': confidence_score
+        })
 
     except Exception as e:
         return jsonify({'error': str(e)})
